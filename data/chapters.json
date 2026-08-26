@@ -1,0 +1,266 @@
+[
+  {
+    "id": "party",
+    "order": 1,
+    "names": {
+      "zh": "共产党",
+      "en": "The Communist Party"
+    }
+  },
+  {
+    "id": "class-struggle",
+    "order": 2,
+    "names": {
+      "zh": "阶级斗争",
+      "en": "Classes and Class Struggle"
+    }
+  },
+  {
+    "id": "socialism-and-communism",
+    "order": 3,
+    "names": {
+      "zh": "社会主义和共产主义",
+      "en": "Socialism and Communism"
+    }
+  },
+  {
+    "id": "contradictions-among-the-people",
+    "order": 4,
+    "names": {
+      "zh": "人民内部矛盾",
+      "en": "The Correct Handling of Contradictions Among the People"
+    }
+  },
+  {
+    "id": "war-and-peace",
+    "order": 5,
+    "names": {
+      "zh": "战争与和平",
+      "en": "War and Peace"
+    }
+  },
+  {
+    "id": "imperialism",
+    "order": 6,
+    "names": {
+      "zh": "帝国主义",
+      "en": "Imperialism and All Reactionaries Are Paper Tigers"
+    }
+  },
+  {
+    "id": "dare-to-struggle",
+    "order": 7,
+    "names": {
+      "zh": "敢于斗争",
+      "en": "Dare to Struggle and Dare to Win"
+    }
+  },
+  {
+    "id": "peoples-war",
+    "order": 8,
+    "names": {
+      "zh": "人民战争",
+      "en": "People's War"
+    }
+  },
+  {
+    "id": "peoples-army",
+    "order": 9,
+    "names": {
+      "zh": "人民军队",
+      "en": "The People's Army"
+    }
+  },
+  {
+    "id": "party-committees",
+    "order": 10,
+    "names": {
+      "zh": "党委领导",
+      "en": "Leadership of Party Committees"
+    }
+  },
+  {
+    "id": "masses",
+    "order": 11,
+    "names": {
+      "zh": "群众",
+      "en": "The Mass Line"
+    }
+  },
+  {
+    "id": "political-work",
+    "order": 12,
+    "names": {
+      "zh": "政工",
+      "en": "Political Work"
+    }
+  },
+  {
+    "id": "officers-and-men",
+    "order": 13,
+    "names": {
+      "zh": "官兵关系",
+      "en": "Relations Between Officers and Men"
+    }
+  },
+  {
+    "id": "army-and-people",
+    "order": 14,
+    "names": {
+      "zh": "军民关系",
+      "en": "Relations Between the Army and the People"
+    }
+  },
+  {
+    "id": "three-democracies",
+    "order": 15,
+    "names": {
+      "zh": "三大民主",
+      "en": "The Three Main Democracies"
+    }
+  },
+  {
+    "id": "education-and-training",
+    "order": 16,
+    "names": {
+      "zh": "教育训练",
+      "en": "Education and Training"
+    }
+  },
+  {
+    "id": "serving-the-people",
+    "order": 17,
+    "names": {
+      "zh": "为人民服务",
+      "en": "Serving the People"
+    }
+  },
+  {
+    "id": "patriotism-and-internationalism",
+    "order": 18,
+    "names": {
+      "zh": "爱国主义与国际主义",
+      "en": "Patriotism and Internationalism"
+    }
+  },
+  {
+    "id": "heroism",
+    "order": 19,
+    "names": {
+      "zh": "英雄主义",
+      "en": "Revolutionary Heroism"
+    }
+  },
+  {
+    "id": "diligence-and-thrift",
+    "order": 20,
+    "names": {
+      "zh": "勤俭建国",
+      "en": "Building the Country Through Diligence and Thrift"
+    }
+  },
+  {
+    "id": "self-reliance",
+    "order": 21,
+    "names": {
+      "zh": "自力更生，艰苦奋斗",
+      "en": "Self-Reliance and Hard Struggle"
+    }
+  },
+  {
+    "id": "methods-of-thinking",
+    "order": 22,
+    "names": {
+      "zh": "思想与工作方法",
+      "en": "Methods of Thinking and Methods of Work"
+    }
+  },
+  {
+    "id": "investigation",
+    "order": 23,
+    "names": {
+      "zh": "调查",
+      "en": "Investigation and Study"
+    }
+  },
+  {
+    "id": "correcting-ideas",
+    "order": 24,
+    "names": {
+      "zh": "纠正错误思想",
+      "en": "Correcting Incorrect Ideas"
+    }
+  },
+  {
+    "id": "unity",
+    "order": 25,
+    "names": {
+      "zh": "团结",
+      "en": "Unity"
+    }
+  },
+  {
+    "id": "discipline",
+    "order": 26,
+    "names": {
+      "zh": "纪律",
+      "en": "Discipline"
+    }
+  },
+  {
+    "id": "criticism",
+    "order": 27,
+    "names": {
+      "zh": "批评",
+      "en": "Criticism and Self-Criticism"
+    }
+  },
+  {
+    "id": "communists",
+    "order": 28,
+    "names": {
+      "zh": "共产党员",
+      "en": "Communists"
+    }
+  },
+  {
+    "id": "cadres",
+    "order": 29,
+    "names": {
+      "zh": "干部",
+      "en": "Cadres"
+    }
+  },
+  {
+    "id": "youth",
+    "order": 30,
+    "names": {
+      "zh": "青年",
+      "en": "Youth"
+    }
+  },
+  {
+    "id": "women",
+    "order": 31,
+    "names": {
+      "zh": "妇女",
+      "en": "Women"
+    }
+  },
+  {
+    "id": "culture",
+    "order": 32,
+    "names": {
+      "zh": "文化",
+      "en": "Culture and Art"
+    }
+  },
+  {
+    "id": "study",
+    "order": 33,
+    "names": {
+      "zh": "学习",
+      "en": "Study"
+    }
+  }
+]
