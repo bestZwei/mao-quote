@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>毛主席语录 API</title>
+<style>
+  :root {
+    --red-deep: #6d1010;
+    --red: #9e1c1c;
+    --gold: #f0c75e;
+    --gold-deep: #d9a441;
+    --paper: #fbf4e4;
+    --ink: #3b2b20;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: linear-gradient(165deg, var(--red-deep) 0%, #8f1a1a 45%, var(--red-deep) 100%);
+    background-attachment: fixed;
+    color: var(--paper);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  a { color: var(--gold); }
+  code {
+    font-family: "Cascadia Code", Consolas, Menlo, monospace;
+    font-size: .9em;
+    background: rgba(0, 0, 0, .3);
+    border-radius: 5px;
+    padding: 2px 7px;
+    color: #ffe9b3;
+  }
+
+  /* ---------- 头部 ---------- */
+  header { text-align: center; padding: 60px 16px 34px; }
+  header h1 {
+    font-family: "STKaiti", "KaiTi", "Noto Serif SC", serif;
+    font-size: 2.5rem;
+    letter-spacing: .14em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .35);
+  }
+  header h1 .api { color: var(--gold); font-size: 1.5rem; letter-spacing: .35em; margin-left: 12px; vertical-align: 6px; }
+  header .star { color: var(--gold); font-size: 1.1rem; }
+  header .sub { margin-top: 14px; color: #f2d9a4; opacity: .9; font-size: .95rem; letter-spacing: .22em; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 0 16px 70px; }
+  .block {
+    background: rgba(255, 255, 255, .055);
+    border: 1px solid rgba(240, 199, 94, .28);
+    border-radius: 14px;
+    padding: 26px 26px 28px;
+    margin-bottom: 26px;
+    backdrop-filter: blur(2px);
+  }
+  h2 {
+    color: var(--gold);
+    font-size: 1.2rem;
+    letter-spacing: .3em;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--gold);
+    padding-left: 12px;
+    font-weight: 600;
+  }
+
+  /* ---------- 语录卡片 ---------- */
+  .quote-card {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 30px 26px 20px;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, .3);
+    position: relative;
+    min-height: 120px;
+  }
+  .quote-card .chapter-badge {
+    position: absolute; top: -12px; left: 18px;
+    background: var(--red); color: var(--gold);
+    font-size: .78rem; padding: 3px 13px;
+    border-radius: 999px; letter-spacing: .18em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+  }
+  .quote-card .text {
+    font-family: "STKaiti", "KaiTi", "Noto Serif SC", serif;
+    font-size: 1.25rem; line-height: 2;
+    text-align: justify;
+  }
+  .quote-card .derived { margin-top: 12px; color: #8a5a2b; font-size: .95rem; }
+  .quote-card .source { margin-top: 14px; text-align: right; color: #6b4a33; font-size: .95rem; }
+  .quote-card.loading .text { color: #b0a08a; }
+
+  /* ---------- 控件 ---------- */
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 4px; align-items: center; }
+  button {
+    cursor: pointer; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: .95rem; letter-spacing: .12em;
+    transition: filter .15s, transform .1s;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: translateY(1px); }
+  .btn-gold {
+    background: linear-gradient(180deg, #f5d47a, var(--gold-deep));
+    color: #5c3a06; font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .28);
+  }
+  .btn-ghost { background: transparent; border: 1px solid rgba(240, 199, 94, .55); color: var(--gold); }
+  select, input[type="date"], input[type="text"] {
+    background: rgba(0, 0, 0, .28); color: var(--paper);
+    border: 1px solid rgba(240, 199, 94, .4);
+    border-radius: 8px; padding: 9px 12px; font-size: .95rem;
+    outline: none;
+  }
+  select:focus, input:focus { border-color: var(--gold); }
+  input[type="date"] { color-scheme: dark; }
+  .hint { font-size: .82rem; color: #e8c98f; opacity: .75; margin-top: 10px; }
+
+  /* ---------- 搜索 ---------- */
+  .search-bar { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+  .search-bar input[type="text"] { flex: 1; min-width: 200px; }
+  .search-results { margin-top: 16px; display: none; }
+  .mini-quote {
+    background: rgba(251, 244, 228, .08);
+    border: 1px solid rgba(240, 199, 94, .22);
+    border-radius: 9px; padding: 14px 16px; margin-bottom: 10px;
+    cursor: pointer; transition: background .15s;
+  }
+  .mini-quote:hover { background: rgba(251, 244, 228, .16); }
+  .mini-quote .text {
+    font-family: "STKaiti", "KaiTi", "Noto Serif SC", serif;
+    font-size: 1rem; line-height: 1.8;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .mini-quote .source { margin-top: 8px; font-size: .82rem; color: #e8c98f; opacity: .8; text-align: right; }
+  .search-count { font-size: .85rem; color: #e8c98f; margin-bottom: 12px; }
+
+  /* ---------- 接口文档 ---------- */
+  .endpoint {
+    border: 1px solid rgba(240, 199, 94, .18);
+    border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
+    background: rgba(0, 0, 0, .14);
+  }
+  .ep-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ep-path { font-weight: 600; font-size: .98rem; }
+  .ep-desc { margin-top: 8px; font-size: .88rem; color: #f2d9a4; opacity: .85; }
+  .ep-out {
+    display: none; margin-top: 12px;
+    background: #1c0d0d; border-radius: 8px;
+    padding: 14px 16px; font-size: .8rem; line-height: 1.55;
+    overflow-x: auto; max-height: 340px; overflow-y: auto;
+    white-space: pre; color: #e8dcc0;
+    font-family: "Cascadia Code", Consolas, Menlo, monospace;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 10px 0 4px; }
+  th, td { border: 1px solid rgba(240, 199, 94, .22); padding: 8px 12px; text-align: left; }
+  th { color: var(--gold); background: rgba(0, 0, 0, .2); letter-spacing: .1em; font-weight: 600; }
+  pre.schema {
+    background: #1c0d0d; border-radius: 8px; padding: 16px;
+    font-size: .8rem; line-height: 1.6; overflow-x: auto;
+    color: #e8dcc0; font-family: "Cascadia Code", Consolas, Menlo, monospace;
+  }
+
+  footer { text-align: center; padding: 0 16px 54px; font-size: .82rem; color: #e8c98f; opacity: .65; letter-spacing: .1em; }
+
+  @media (max-width: 560px) {
+    header h1 { font-size: 1.9rem; }
+    .block { padding: 20px 16px; }
+    .quote-card .text { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="star">★</span> 毛主席语录 <span class="api">API</span> <span class="star">★</span></h1>
+  <p class="sub" id="meta-line">加载中…</p>
+</header>
+
+<main>
+  <!-- ==================== 演练场 ==================== -->
+  <section class="block">
+    <h2>试 一 试</h2>
+
+    <div class="quote-card loading" id="card">
+      <span class="chapter-badge" id="card-chapter" style="display:none"></span>
+      <div class="text" id="card-text">正在获取语录…</div>
+      <div class="derived" id="card-derived" style="display:none"></div>
+      <div class="source" id="card-source"></div>
+    </div>
+
+    <div class="controls">
+      <select id="chapter-select" title="按章节筛选">
+        <option value="">全部章节</option>
+      </select>
+      <button class="btn-gold" id="btn-random">随机一条</button>
+      <button class="btn-gold" id="btn-daily">每日一言</button>
+      <input type="date" id="daily-date" title="指定日期（留空为今天）" />
+      <button class="btn-ghost" id="btn-copy">复制</button>
+    </div>
+    <p class="hint">「每日一言」同一天结果固定，可指定历史日期；「随机一条」每次不同。</p>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="搜索正文 / 出处，如：纸老虎、论持久战" />
+      <button class="btn-gold" id="btn-search">搜索</button>
+    </div>
+    <div class="search-results" id="search-results">
+      <div class="search-count" id="search-count"></div>
+      <div id="search-list"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 接口文档 ==================== -->
+  <section class="block">
+    <h2>接 口 文 档</h2>
+    <p style="font-size:.9rem; margin-bottom:16px;">
+      Base URL：<code id="base-url"></code>
+      &nbsp;·&nbsp; 全部为 <code>GET</code> 请求，返回 JSON，已开启 CORS（<code>Access-Control-Allow-Origin: *</code>），可直接跨域调用。
+      每个接口右侧「运行」按钮可看真实响应。
+    </p>
+
+    <table>
+      <tr><th>公共参数</th><th>说明</th></tr>
+      <tr><td><code>lang</code></td><td>语言代码，默认 <code>zh</code>（后续语言在此扩展）</td></tr>
+      <tr><td><code>chapter</code></td><td>章节 slug，取自 <code>/api/chapters</code> 的 <code>id</code> 字段，可选</td></tr>
+    </table>
+
+    <div id="endpoints"></div>
+
+    <h2 style="margin-top:26px">数 据 结 构</h2>
+<pre class="schema">{
+  "id": "q1h5bi91",              // 内容哈希，数据重排后保持稳定
+  "chapter": "class-struggle",   // 语言无关的章节 slug
+  "text": "革命不是请客吃饭……",
+  "derived": null,               // 衍生短句（共 3 条），无则 null
+  "source": {
+    "title": "湖南农民运动考察报告",
+    "date": "1927-03",           // 精度跟随原文：1955 / 1937-07 / 1954-09-15
+    "footnote": 1                // 可选，原始脚注编号
+  }
+}</pre>
+  </section>
+</main>
+
+<footer>同源部署于 Cloudflare Workers · 本页接口调用均为相对路径 · 数据源自《毛主席语录》33 章 440 条</footer>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+let chapterNames = {};   // slug -> 中文名
+let currentQuote = null;
+
+/* ---------- 工具 ---------- */
+async function api(path) {
+  const res = await fetch(path);
+  return { status: res.status, body: await res.json() };
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+}
+
+function formatDate(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  if (!m) return y + "年";
+  if (!d) return y + "年" + Number(m) + "月";
+  return y + "年" + Number(m) + "月" + Number(d) + "日";
+}
+
+function sourceLine(q) {
+  return "——《" + q.source.title + "》（" + formatDate(q.source.date) + "）";
+}
+
+/* ---------- 语录卡片 ---------- */
+function renderQuote(q) {
+  currentQuote = q;
+  const card = $("#card");
+  card.classList.remove("loading");
+  const badge = $("#card-chapter");
+  badge.textContent = chapterNames[q.chapter] || q.chapter;
+  badge.style.display = "";
+  $("#card-text").textContent = q.text;
+  const derived = $("#card-derived");
+  if (q.derived) { derived.textContent = "衍生：" + q.derived; derived.style.display = ""; }
+  else derived.style.display = "none";
+  $("#card-source").textContent = sourceLine(q);
+}
+
+function chapterParam() {
+  const c = $("#chapter-select").value;
+  return c ? "?chapter=" + encodeURIComponent(c) : "";
+}
+
+async function loadRandom() {
+  $("#card-text").textContent = "正在获取…";
+  const { status, body } = await api("/api/quote/random" + chapterParam());
+  if (status === 200) renderQuote(body);
+}
+
+async function loadDaily() {
+  $("#card-text").textContent = "正在获取…";
+  const date = $("#daily-date").value;
+  const params = new URLSearchParams();
+  if (date) params.set("date", date);
+  const c = $("#chapter-select").value;
+  if (c) params.set("chapter", c);
+  const qs = params.toString() ? "?" + params.toString() : "";
+  const { status, body } = await api("/api/quote/daily" + qs);
+  if (status === 200) renderQuote(body);
+}
+
+/* ---------- 搜索 ---------- */
+async function doSearch() {
+  const q = $("#search-input").value.trim();
+  if (!q) return;
+  const params = new URLSearchParams({ q });
+  const c = $("#chapter-select").value;
+  if (c) params.set("chapter", c);
+  const { status, body } = await api("/api/search?" + params.toString());
+  const box = $("#search-results");
+  box.style.display = "";
+  if (status !== 200) {
+    $("#search-count").textContent = body.error || "搜索失败";
+    $("#search-list").innerHTML = "";
+    return;
+  }
+  $("#search-count").textContent = "命中 " + body.total + " 条" + (body.total >= 50 ? "（最多显示 50 条）" : "") + "，点击可置顶显示：";
+  $("#search-list").innerHTML = body.quotes.map((item, i) => `
+    <div class="mini-quote" data-i="${i}">
+      <div class="text">${esc(item.text)}</div>
+      <div class="source">「${esc(chapterNames[item.chapter] || item.chapter)}」 ${esc(sourceLine(item))}</div>
+    </div>`).join("");
+  $("#search-list").querySelectorAll(".mini-quote").forEach((el) => {
+    el.addEventListener("click", () => {
+      renderQuote(body.quotes[Number(el.dataset.i)]);
+      window.scrollTo({ top: 0 });
+    });
+  });
+}
+
+/* ---------- 复制 ---------- */
+async function copyQuote() {
+  if (!currentQuote) return;
+  const text = currentQuote.text + "\n" + sourceLine(currentQuote);
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = $("#btn-copy");
+    btn.textContent = "已复制 ✓";
+    setTimeout(() => (btn.textContent = "复制"), 1200);
+  } catch {
+    window.prompt("复制以下内容：", text);
+  }
+}
+
+/* ---------- 文档区：接口列表 + 运行按钮 ---------- */
+const ENDPOINTS = [
+  { path: "/api/meta",                          desc: "服务概览：支持的语言、语录总数、章节数。" },
+  { path: "/api/chapters?lang=zh",              desc: "章节列表，含每章语录数。章节 id 为语言无关 slug。" },
+  { path: "/api/quotes?chapter=study&page=1&size=5", desc: "分页列表。参数：page（默认 1）、size（1–100，默认 20）、chapter 可选。" },
+  { path: "/api/quote/random?chapter=imperialism",   desc: "随机一条。chapter 可选，限定章节。响应不缓存。" },
+  { path: "/api/quote/daily?date=2026-08-26",   desc: "每日一言。同一日期结果固定（确定性哈希）；date 缺省为当天（UTC），格式 YYYY-MM-DD。" },
+  { path: "/api/quote/q1h5bi91",                desc: "按 id 查询单条。id 为内容哈希，跨语言通用。" },
+  { path: "/api/search?q=" + encodeURIComponent("纸老虎"), desc: "全文搜索：匹配正文、衍生句、出处标题，最多返回 50 条。参数 q 必填，chapter 可选。" },
+];
+
+function renderEndpoints() {
+  $("#endpoints").innerHTML = ENDPOINTS.map((ep, i) => `
+    <div class="endpoint">
+      <div class="ep-head">
+        <code class="ep-path">GET ${esc(ep.path)}</code>
+        <button class="btn-ghost" data-run="${i}">运行</button>
+        <a class="btn-ghost" style="text-decoration:none;font-size:.85rem;padding:6px 12px;border-radius:8px;border:1px solid rgba(240,199,94,.35);"
+           href="${esc(ep.path)}" target="_blank" rel="noopener">新窗口打开</a>
+      </div>
+      <p class="ep-desc">${esc(ep.desc)}</p>
+      <pre class="ep-out" id="out-${i}"></pre>
+    </div>`).join("");
+  $("#endpoints").querySelectorAll("button[data-run]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const i = btn.dataset.run;
+      const out = $("#out-" + i);
+      out.style.display = "block";
+      out.textContent = "请求中…";
+      try {
+        const res = await fetch(ENDPOINTS[i].path);
+        const body = await res.json();
+        let text = JSON.stringify(body, null, 2);
+        if (text.length > 4000) text = text.slice(0, 4000) + "\n…（输出过长已截断）";
+        out.textContent = "HTTP " + res.status + "\n" + text;
+      } catch (e) {
+        out.textContent = "请求失败：" + e.message;
+      }
+    });
+  });
+}
+
+/* ---------- 初始化 ---------- */
+async function init() {
+  $("#base-url").textContent = location.origin;
+
+  const { body: meta } = await api("/api/meta");
+  const zh = meta.languages.find((l) => l.lang === "zh") || {};
+  $("#meta-line").textContent =
+    meta.chapters + " 个章节 · " + (zh.quotes || "") + " 条语录 · 每条带出处 · Cloudflare Workers 驱动";
+
+  const { body: chapters } = await api("/api/chapters");
+  chapterNames = Object.fromEntries(chapters.map((c) => [c.id, c.name]));
+  const sel = $("#chapter-select");
+  for (const c of chapters) {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name + "（" + c.quotes + "）";
+    sel.appendChild(opt);
+  }
+
+  renderEndpoints();
+  $("#btn-random").addEventListener("click", loadRandom);
+  $("#btn-daily").addEventListener("click", loadDaily);
+  $("#btn-search").addEventListener("click", doSearch);
+  $("#search-input").addEventListener("keydown", (e) => e.key === "Enter" && doSearch());
+  $("#btn-copy").addEventListener("click", copyQuote);
+
+  await loadRandom(); // 页面加载即展示一条
+}
+init().catch((e) => {
+  $("#card-text").textContent = "初始化失败：" + e.message;
+});
+</script>
+</body>
+</html>

@@ -7,7 +7,9 @@
   "scripts": {
     "normalize": "node scripts/normalize.mjs",
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "node scripts/smoke-test.mjs",
+    "verify:prod": "node scripts/verify-prod.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

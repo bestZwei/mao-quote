@@ -1,5 +1,9 @@
-// scripts/smoke-test.mjs — 对本地 wrangler dev 服务做端点冒烟测试
-const BASE = "http://127.0.0.1:8787";
+// scripts/smoke-test.mjs — API 端点冒烟测试
+// 用法：
+//   node scripts/smoke-test.mjs                          → 测试本地 http://127.0.0.1:8787
+//   node scripts/smoke-test.mjs https://xxx.workers.dev  → 测试线上部署
+const BASE = (process.argv[2] || "http://127.0.0.1:8787").replace(/\/$/, "");
+console.log(`目标：${BASE}\n`);
 let passed = 0, failed = 0;
 
 async function check(name, path, fn) {

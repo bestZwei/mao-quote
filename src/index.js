@@ -5,6 +5,7 @@
 
 import chapters from "../data/chapters.json";
 import zh from "../data/zh.json";
+import page from "./page.html"; // 交互式文档页（文本模块），浏览器访问 / 时返回
 
 // ---------------------------------------------------------------------------
 // 数据注册与索引（模块加载时一次性构建）
@@ -78,7 +79,16 @@ function chapterView(c, lang) {
 // 各端点处理
 // ---------------------------------------------------------------------------
 
-// GET / —— 服务信息与端点索引
+// GET / —— 浏览器返回交互式文档页，API 客户端（Accept 不含 text/html）返回服务信息
+function handlePage() {
+  return new Response(page, {
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "public, max-age=600",
+    },
+  });
+}
+
 function handleRoot() {
   return json({
     name: "mao-quote",
@@ -220,7 +230,10 @@ export default {
 
     const p = url.pathname;
     try {
-      if (p === "/") return handleRoot();
+      if (p === "/") {
+        if ((request.headers.get("accept") || "").includes("text/html")) return handlePage();
+        return handleRoot();
+      }
       if (p === "/api/meta") return handleMeta();
       if (p === "/api/chapters") return handleChapters(url);
       if (p === "/api/quotes") return handleQuotes(url);

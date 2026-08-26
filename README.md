@@ -11,7 +11,28 @@
 ```bash
 npm install        # 安装 wrangler
 npm run dev        # 本地启动 http://127.0.0.1:8787
-node scripts/smoke-test.mjs   # 冒烟测试（需先 npm run dev）
+npm test           # 冒烟测试（默认测本地，可传 URL：node scripts/smoke-test.mjs https://xxx.workers.dev）
+```
+
+## 测试
+
+两层测试，覆盖功能与数据完整性：
+
+```bash
+# 1. 功能冒烟测试（18 项：全部端点 + 参数校验 + CORS + 错误码）
+npm test                                              # 测本地（需先 npm run dev）
+node scripts/smoke-test.mjs https://xxx.workers.dev   # 测线上部署
+
+# 2. 部署后数据一致性校验（拉取线上全量 440 条与本地 data/zh.json 逐条比对 + 响应头 + 延迟）
+npm run verify:prod
+```
+
+也可手动验证：
+
+```bash
+curl https://<your-worker>/api/meta
+curl "https://<your-worker>/api/quote/daily"
+curl "https://<your-worker>/api/search?q=纸老虎"
 ```
 
 ## API 文档
@@ -175,7 +196,8 @@ mao-quote/
 │   └── index.js           # Worker 入口（路由 + 全部端点）
 ├── scripts/
 │   ├── normalize.mjs      # 数据规范化脚本
-│   └── smoke-test.mjs     # 端点冒烟测试
+│   ├── smoke-test.mjs     # 端点冒烟测试（支持传入 URL）
+│   └── verify-prod.mjs    # 部署后数据一致性校验
 ├── wrangler.jsonc         # Cloudflare Workers 配置
 └── package.json
 ```
