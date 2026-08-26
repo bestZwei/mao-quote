@@ -5,6 +5,7 @@
 - **33 个章节 / 440 条语录**，每条均带出处（篇名 + 日期）
 - 零数据库依赖：数据以 JSON 打包进 Worker，冷启动即完整可用
 - 全端点开启 CORS，可直接用于网页 / 小程序 / 桌面小组件
+- 浏览器访问 `/` 即为交互式文档页：随机/每日一言演练场 + 可运行示例的接口文档
 
 ## 快速开始
 
@@ -13,6 +14,8 @@ npm install        # 安装 wrangler
 npm run dev        # 本地启动 http://127.0.0.1:8787
 npm test           # 冒烟测试（默认测本地，可传 URL：node scripts/smoke-test.mjs https://xxx.workers.dev）
 ```
+
+浏览器打开 http://127.0.0.1:8787 即可看到交互式文档页（演练场 + 接口文档）；API 客户端访问 `/` 仍返回 JSON 服务信息（按 `Accept` 头协商，响应带 `Vary: accept`）。
 
 ## 测试
 
@@ -193,7 +196,8 @@ mao-quote/
 │   ├── chapters.json      # 章节元数据（语言无关 id + 多语言名称）
 │   └── zh.json            # 规范化中文数据（440 条）
 ├── src/
-│   └── index.js           # Worker 入口（路由 + 全部端点）
+│   ├── index.js           # Worker 入口（路由 + 全部端点）
+│   └── page.html          # 交互式文档页（浏览器访问 / 返回）
 ├── scripts/
 │   ├── normalize.mjs      # 数据规范化脚本
 │   ├── smoke-test.mjs     # 端点冒烟测试（支持传入 URL）

@@ -94,6 +94,7 @@ function handleRoot() {
     name: "mao-quote",
     description: "毛主席语录 API",
     endpoints: [
+      "GET /（浏览器返回交互式文档页）",
       "GET /api/meta",
       "GET /api/chapters?lang=zh",
       "GET /api/quotes?lang=zh&chapter=study&page=1&size=20",
@@ -231,8 +232,11 @@ export default {
     const p = url.pathname;
     try {
       if (p === "/") {
-        if ((request.headers.get("accept") || "").includes("text/html")) return handlePage();
-        return handleRoot();
+        const res = (request.headers.get("accept") || "").includes("text/html")
+          ? handlePage()
+          : handleRoot();
+        res.headers.set("vary", "accept"); // 内容协商结果需按 Accept 分别缓存
+        return res;
       }
       if (p === "/api/meta") return handleMeta();
       if (p === "/api/chapters") return handleChapters(url);

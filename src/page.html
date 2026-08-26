@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>毛主席语录 API</title>
+<meta name="description" content="毛主席语录 API：随机语录、每日一言、章节浏览、全文搜索。33 章 440 条，每条带出处，Cloudflare Workers 驱动。" />
+<meta name="theme-color" content="#7a1414" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%239e1c1c'/%3E%3Ctext x='50' y='72' font-size='62' text-anchor='middle' fill='%23f0c75e'%3E%E2%98%85%3C/text%3E%3C/svg%3E" />
 <style>
   :root {
     --red-deep: #6d1010;
@@ -99,6 +102,8 @@
   }
   button:hover { filter: brightness(1.08); }
   button:active { transform: translateY(1px); }
+  button:disabled { opacity: .5; cursor: default; filter: none; }
+  a.btn-ghost { text-decoration: none; display: inline-block; padding: 10px 16px; }
   .btn-gold {
     background: linear-gradient(180deg, #f5d47a, var(--gold-deep));
     color: #5c3a06; font-weight: 600;
@@ -181,7 +186,7 @@
   <section class="block">
     <h2>试 一 试</h2>
 
-    <div class="quote-card loading" id="card">
+    <div class="quote-card loading" id="card" aria-live="polite">
       <span class="chapter-badge" id="card-chapter" style="display:none"></span>
       <div class="text" id="card-text">正在获取语录…</div>
       <div class="derived" id="card-derived" style="display:none"></div>
@@ -196,6 +201,7 @@
       <button class="btn-gold" id="btn-daily">每日一言</button>
       <input type="date" id="daily-date" title="指定日期（留空为今天）" />
       <button class="btn-ghost" id="btn-copy">复制</button>
+      <a class="btn-ghost" id="card-json" href="#" target="_blank" rel="noopener" title="查看当前语录的原始 JSON">JSON ↗</a>
     </div>
     <p class="hint">「每日一言」同一天结果固定，可指定历史日期；「随机一条」每次不同。</p>
 
@@ -286,6 +292,19 @@ function renderQuote(q) {
   if (q.derived) { derived.textContent = "衍生：" + q.derived; derived.style.display = ""; }
   else derived.style.display = "none";
   $("#card-source").textContent = sourceLine(q);
+  $("#card-json").href = "/api/quote/" + q.id;
+}
+
+function showError(msg) {
+  $("#card").classList.remove("loading");
+  $("#card-text").textContent = msg;
+  $("#card-source").textContent = "";
+}
+
+// 请求期间禁用按钮，防止连点
+async function withBusy(btn, fn) {
+  btn.disabled = true;
+  try { await fn(); } finally { btn.disabled = false; }
 }
 
 function chapterParam() {
@@ -297,6 +316,7 @@ async function loadRandom() {
   $("#card-text").textContent = "正在获取…";
   const { status, body } = await api("/api/quote/random" + chapterParam());
   if (status === 200) renderQuote(body);
+  else showError("获取失败（HTTP " + status + "）：" + (body.error || ""));
 }
 
 async function loadDaily() {
@@ -309,6 +329,7 @@ async function loadDaily() {
   const qs = params.toString() ? "?" + params.toString() : "";
   const { status, body } = await api("/api/quote/daily" + qs);
   if (status === 200) renderQuote(body);
+  else showError("获取失败（HTTP " + status + "）：" + (body.error || ""));
 }
 
 /* ---------- 搜索 ---------- */
@@ -320,9 +341,14 @@ async function doSearch() {
   if (c) params.set("chapter", c);
   const { status, body } = await api("/api/search?" + params.toString());
   const box = $("#search-results");
-  box.style.display = "";
+  box.style.display = "block";
   if (status !== 200) {
     $("#search-count").textContent = body.error || "搜索失败";
+    $("#search-list").innerHTML = "";
+    return;
+  }
+  if (!body.total) {
+    $("#search-count").textContent = "未找到与「" + q + "」匹配的语录。";
     $("#search-list").innerHTML = "";
     return;
   }
@@ -416,9 +442,9 @@ async function init() {
   }
 
   renderEndpoints();
-  $("#btn-random").addEventListener("click", loadRandom);
-  $("#btn-daily").addEventListener("click", loadDaily);
-  $("#btn-search").addEventListener("click", doSearch);
+  $("#btn-random").addEventListener("click", () => withBusy($("#btn-random"), loadRandom));
+  $("#btn-daily").addEventListener("click", () => withBusy($("#btn-daily"), loadDaily));
+  $("#btn-search").addEventListener("click", () => withBusy($("#btn-search"), doSearch));
   $("#search-input").addEventListener("keydown", (e) => e.key === "Enter" && doSearch());
   $("#btn-copy").addEventListener("click", copyQuote);
 
